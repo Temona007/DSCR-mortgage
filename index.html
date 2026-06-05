@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="DSCR Mortgage Quick Pricer — price investment property loans in seconds." />
+    <title>DSCR Quick Pricer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="header__brand">
+          <div class="header__logo" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" rx="8" fill="currentColor" fill-opacity="0.12"/>
+              <path d="M8 22V10h4.2c2.4 0 3.9 1.2 3.9 3.1 0 1.3-.7 2.3-1.9 2.8L17.5 22h-2.6l-2.5-5.4H10.2V22H8zm2.2-7.4h1.8c1.1 0 1.7-.5 1.7-1.4s-.6-1.4-1.7-1.4h-1.8v2.8zM18.5 22V10h2.2v12h-2.2z" fill="currentColor"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="header__title">DSCR Quick Pricer</h1>
+            <p class="header__subtitle" id="rate-sheet-label">Loading rate sheet…</p>
+          </div>
+        </div>
+        <div class="header__actions">
+          <button type="button" class="btn btn--ghost" id="btn-load-scenario" aria-haspopup="true">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Demo Scenarios
+          </button>
+          <button type="button" class="btn btn--primary" id="btn-price">
+            Price Loan
+          </button>
+        </div>
+      </header>
+
+      <main class="main">
+        <section class="panel panel--inputs" aria-label="Loan inputs">
+          <div class="panel__header">
+            <h2>Loan Details</h2>
+            <button type="button" class="btn btn--text" id="btn-reset">Reset</button>
+          </div>
+
+          <form id="pricer-form" class="form" novalidate>
+            <fieldset class="form__section">
+              <legend>Property &amp; Loan</legend>
+              <div class="form__grid">
+                <div class="field">
+                  <label for="propertyValue">Property Value</label>
+                  <div class="input-wrap">
+                    <span class="input-prefix">$</span>
+                    <input type="number" id="propertyValue" name="propertyValue" min="0" step="1000" value="425000" required />
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="loanAmount">Loan Amount</label>
+                  <div class="input-wrap">
+                    <span class="input-prefix">$</span>
+                    <input type="number" id="loanAmount" name="loanAmount" min="0" step="1000" value="340000" required />
+                  </div>
+                  <span class="field__hint" id="ltv-hint">LTV —</span>
+                </div>
+                <div class="field">
+                  <label for="term">Term</label>
+                  <select id="term" name="term">
+                    <option value="30" selected>30 years</option>
+                    <option value="25">25 years</option>
+                    <option value="20">20 years</option>
+                    <option value="15">15 years</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="purpose">Purpose</label>
+                  <select id="purpose" name="purpose">
+                    <option value="purchase" selected>Purchase</option>
+                    <option value="rate-term">Rate/Term Refinance</option>
+                    <option value="cash-out">Cash-Out Refinance</option>
+                  </select>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="form__section">
+              <legend>Income &amp; Expenses</legend>
+              <div class="form__grid">
+                <div class="field">
+                  <label for="monthlyRent">Monthly Rent</label>
+                  <div class="input-wrap">
+                    <span class="input-prefix">$</span>
+                    <input type="number" id="monthlyRent" name="monthlyRent" min="0" step="50" value="2800" required />
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="monthlyTaxes">Monthly Taxes</label>
+                  <div class="input-wrap">
+                    <span class="input-prefix">$</span>
+                    <input type="number" id="monthlyTaxes" name="monthlyTaxes" min="0" step="25" value="350" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="monthlyInsurance">Monthly Insurance</label>
+                  <div class="input-wrap">
+                    <span class="input-prefix">$</span>
+                    <input type="number" id="monthlyInsurance" name="monthlyInsurance" min="0" step="25" value="125" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="monthlyHoa">Monthly HOA</label>
+                  <div class="input-wrap">
+                    <span class="input-prefix">$</span>
+                    <input type="number" id="monthlyHoa" name="monthlyHoa" min="0" step="25" value="0" />
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="form__section">
+              <legend>Borrower &amp; Product</legend>
+              <div class="form__grid">
+                <div class="field">
+                  <label for="fico">FICO Score</label>
+                  <input type="range" id="fico" name="fico" min="620" max="800" step="1" value="740" class="range" />
+                  <div class="range-labels">
+                    <span>620</span>
+                    <output for="fico" id="fico-output" class="range-value">740</output>
+                    <span>800+</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="propertyType">Property Type</label>
+                  <select id="propertyType" name="propertyType">
+                    <option value="sfr" selected>Single Family</option>
+                    <option value="2-4unit">2–4 Unit</option>
+                    <option value="condo">Warrantable Condo</option>
+                    <option value="non-warrantable-condo">Non-Warrantable Condo</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="prepayPenalty">Prepay Penalty</label>
+                  <select id="prepayPenalty" name="prepayPenalty">
+                    <option value="none">None</option>
+                    <option value="1yr">1 Year</option>
+                    <option value="3yr" selected>3 Year</option>
+                    <option value="5yr">5 Year</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="brokerPoints">Broker Points</label>
+                  <div class="input-wrap">
+                    <input type="number" id="brokerPoints" name="brokerPoints" min="0" max="3" step="0.125" value="1.0" />
+                    <span class="input-suffix">pts</span>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+          </form>
+        </section>
+
+        <section class="panel panel--results" aria-label="Pricing results" aria-live="polite">
+          <div class="results-placeholder" id="results-placeholder">
+            <div class="results-placeholder__icon" aria-hidden="true">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 4"/>
+                <path d="M24 14v14l8 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <p>Enter loan details and tap <strong>Price Loan</strong> to see your quote.</p>
+          </div>
+
+          <div class="results hidden" id="results">
+            <div class="eligibility" id="eligibility-banner">
+              <span class="eligibility__icon" aria-hidden="true"></span>
+              <span class="eligibility__text" id="eligibility-text"></span>
+            </div>
+
+            <div class="rate-card" id="rate-card">
+              <div class="rate-card__main">
+                <span class="rate-card__label">Note Rate</span>
+                <span class="rate-card__rate" id="result-rate">—</span>
+                <span class="rate-card__term" id="result-term">30-yr fixed</span>
+              </div>
+              <div class="rate-card__metrics">
+                <div class="metric">
+                  <span class="metric__label">DSCR</span>
+                  <span class="metric__value" id="result-dscr">—</span>
+                </div>
+                <div class="metric">
+                  <span class="metric__label">LTV</span>
+                  <span class="metric__value" id="result-ltv">—</span>
+                </div>
+                <div class="metric">
+                  <span class="metric__label">PITIA</span>
+                  <span class="metric__value" id="result-pitia">—</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="summary-grid">
+              <div class="summary-card">
+                <span class="summary-card__label">Monthly P&amp;I</span>
+                <span class="summary-card__value" id="result-pi">—</span>
+              </div>
+              <div class="summary-card">
+                <span class="summary-card__label">Monthly Cash Flow</span>
+                <span class="summary-card__value" id="result-cashflow">—</span>
+              </div>
+              <div class="summary-card">
+                <span class="summary-card__label">Total Price</span>
+                <span class="summary-card__value" id="result-price">—</span>
+              </div>
+              <div class="summary-card">
+                <span class="summary-card__label">Points / Credit</span>
+                <span class="summary-card__value" id="result-points">—</span>
+              </div>
+            </div>
+
+            <div class="adjustments">
+              <h3>Price Adjustments</h3>
+              <table class="adj-table">
+                <thead>
+                  <tr>
+                    <th>Component</th>
+                    <th>Points</th>
+                  </tr>
+                </thead>
+                <tbody id="adj-table-body"></tbody>
+                <tfoot>
+                  <tr>
+                    <td>Total Price</td>
+                    <td id="adj-total">—</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            <div class="guidelines">
+              <h3>Program Guidelines</h3>
+              <ul class="guideline-list" id="guideline-list"></ul>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <p>Demo rate sheet for illustration only. Not a commitment to lend.</p>
+      </footer>
+    </div>
+
+    <!-- Scenario picker modal -->
+    <dialog class="modal" id="scenario-modal">
+      <div class="modal__header">
+        <h2>Load Demo Scenario</h2>
+        <button type="button" class="btn btn--icon modal__close" id="modal-close" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <ul class="scenario-list" id="scenario-list"></ul>
+    </dialog>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
